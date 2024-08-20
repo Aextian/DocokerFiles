@@ -1,0 +1,76 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        user: laravel
+        uid: 1000
+    container_name: Payroll_php
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    ports:
+      - 9000:9000
+    depends_on:
+      - db
+    networks:
+      - payroll-network
+    entrypoint:
+      ["/var/www/entrypoint.sh"]
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: Payroll_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+      - phpmyadmin
+    networks:
+      - payroll-network
+
+  db:
+    image: mysql:8.0
+    container_name: Payroll_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret123
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+       # named volumes
+      - db-data:/var/lib/mysql
+      # if you want to import mysql
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - payroll-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: Payroll_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      # PMA_USER: ${DB_USERNAME}
+      # PMA_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - payroll-network
+
+networks:
+  payroll-network:
+    driver: bridge
+
+volumes:
+  db-data:
