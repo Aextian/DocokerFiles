@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e  # Exit immediately if a command exits with a non-zero status
+
+# Installation commands with checks
+if [ ! -d "vendor" ]; then
+    composer install --no-interaction --optimize-autoloader || { echo 'Composer install failed'; exit 1; }
+fi
+
+if [ ! -d "node_modules" ]; then
+    pnpm install --frozen-lockfile || { echo 'pnpm install failed'; exit 1; }
+    pnpm run build || { echo 'pnpm build failed'; exit 1; }
+fi
+
+# Run migrations and clear caches
+php artisan migrate --force || { echo 'Migration failed'; exit 1; }
+php artisan optimize:clear || { echo 'Optimize clear failed'; exit 1; }
+php artisan cache:clear || { echo 'Cache clear failed'; exit 1; }
+php artisan route:clear || { echo 'Route clear failed'; exit 1; }
+
+# Start PHP-FPM
+exec php-fpm
