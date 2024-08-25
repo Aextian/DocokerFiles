@@ -14,3 +14,5 @@ sudo certbot --nginx -d devsource.tech -d www.devsource.tech --cert-name devsour
 sudo rm -rf /etc/letsencrypt/live/yourdomain.com/
 sudo rm -rf /etc/letsencrypt/archive/yourdomain.com/
 sudo rm -rf /etc/letsencrypt/renewal/yourdomain.com.conf
+
+sudo certbot delete --cert-name payroll.pmftci.com
