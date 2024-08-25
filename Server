@@ -1,0 +1,16 @@
+sudo apt install certbot python3-certbot-nginx
+
+sudo certbot --nginx -d example.com -d www.example.com
+
+sudo certbot renew --dry-run
+
+sudo certbot --nginx -d devsource.tech -d www.devsource.tech --cert-name devsource.tech --key-type rsa
+
+sudo certbot --nginx -d devsource.tech -d www.devsource.tech --cert-name devsource.tech --key-type ecdsa
+
+
+######### remove ssl #############
+
+sudo rm -rf /etc/letsencrypt/live/yourdomain.com/
+sudo rm -rf /etc/letsencrypt/archive/yourdomain.com/
+sudo rm -rf /etc/letsencrypt/renewal/yourdomain.com.conf
