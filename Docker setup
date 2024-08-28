@@ -10,3 +10,12 @@ docker volume rm $(docker volume ls -q)
 
 # Optionally remove all networks
 docker network rm $(docker network ls -q)
+
+#  Check Overall Disk Usage
+docker system df
+
+# Remove unused data (safe cleanup):
+docker system prune
+
+# Remove unused data (force cleanup, including unused volumes):
+docker system prune -a --volumes
