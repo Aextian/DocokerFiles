@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Nginx
+  nginx:
+    image: nginx:latest
+    container_name: nginx-web
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+    # mount all project
+      - .:/var/www/
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./.docker/nginx/log:/var/log/nginx
+      - ./.docker/nginx/certbot/conf:/etc/letsencrypt
+      - ./.docker/nginx/certbot/www:/var/www/certbot
+    networks:
+      - proxy-network
+
+  # Nginx Proxy Manager
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: always
+    ports:
+      - "81:81"   # Admin port
+      - "443:443" # HTTPS port
+    volumes:
+      - npm_data:/data
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - proxy-network
+
+  # Portainer
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - portainer_data:/data
+    networks:
+      - proxy-network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - proxy-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    networks:
+      - proxy-network
+
+volumes:
+  npm_data:
+  portainer_data:
+  db_data:
+
+networks:
+  proxy-network:
+    driver: bridge

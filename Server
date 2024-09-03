@@ -16,3 +16,15 @@ sudo rm -rf /etc/letsencrypt/archive/yourdomain.com/
 sudo rm -rf /etc/letsencrypt/renewal/yourdomain.com.conf
 
 sudo certbot delete --cert-name payroll.pmftci.com
+
+
+# Add ssl in to docker container
+
+docker run -it --rm \
+  -v "$(pwd)/certbot/conf:/etc/letsencrypt" \
+  -v "$(pwd)/certbot/www:/var/www/certbot" \
+  certbot/certbot \
+  certonly --webroot \
+  -w /var/www/certbot \
+  -d example.com \
+  -d www.example.com
