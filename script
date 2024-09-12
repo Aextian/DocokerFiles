@@ -3,3 +3,19 @@ docker-compose -f docker-compose.prod.yml up -d
 docker run -d --restart unless-stopped --name discord-bot -v /path/to/your/bot:/app -w /app node:latest node bot.js
 
 docker stop tg-bot
+docker rm tg-bot
+docker rm -f tg-bot
+
+docker exec -it tg-bot bash
+
+docker exec -w /app tg-bot npm install
+
+
+
+sudo rm -rf /usr/local/lib/node_modules
+sudo rm /usr/local/bin/npm
+sudo rm /usr/local/bin/node
+
+
+sudo apt remove npm
+sudo apt autoremove
